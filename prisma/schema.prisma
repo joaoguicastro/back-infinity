@@ -1,0 +1,50 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+  seed     = "ts-node ./prisma/seed.ts"
+}
+
+model Aluno {
+  id                 Int          @id @default(autoincrement())
+  nome               String
+  cpf                String       @unique
+  nomeResponsavel    String
+  dataNascimento     DateTime
+  endereco           String
+  cursoMatriculado   Curso?       @relation(fields: [cursoMatriculadoId], references: [id])
+  cursoMatriculadoId Int?
+  financeiro         Financeiro[]
+}
+
+model Curso {
+  id           Int          @id @default(autoincrement())
+  nome         String
+  disciplinas  String[]
+  cargaHoraria Int
+  alunos       Aluno[]
+  financeiro   Financeiro[]
+}
+
+model Financeiro {
+  id            Int       @id @default(autoincrement())
+  aluno         Aluno     @relation(fields: [alunoId], references: [id])
+  alunoId       Int
+  curso         Curso?    @relation(fields: [cursoId], references: [id])
+  cursoId       Int?
+  valor         Float
+  status        String
+  dataPagamento DateTime?
+}
+
+model Usuario {
+  id       Int      @id @default(autoincrement())
+  nome     String
+  email    String   @unique
+  senha    String
+  cargo    String
+  criadoEm DateTime @default(now())
+}
