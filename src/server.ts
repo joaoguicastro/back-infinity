@@ -1,5 +1,5 @@
-import 'dotenv/config'; // Carrega o .env, deve ser a primeira linha antes de qualquer outra importação
-import Fastify from 'fastify';
+import 'dotenv/config'; // Primeira linha do arquivo
+import Fastify from 'fastify'; // Importando o Fastify
 import { cursoRoutes } from './routes/cursoRoutes';
 import { alunoRoutes } from './routes/alunoRoutes';
 import { authRoutes } from './routes/authRoutes';
