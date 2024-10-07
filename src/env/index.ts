@@ -1,5 +1,7 @@
 import { z } from 'zod';
 
+console.log('Todas as variáveis de ambiente:', process.env);
+
 const envSchema = z.object({
   NODE_ENV: z.enum(['dev', 'test', 'production']).default('dev'),
   PORT: z.coerce.number().default(3333),
@@ -7,7 +9,6 @@ const envSchema = z.object({
   DATABASE_URL: z.string().url().optional(),
 });
 
-// Validação das variáveis de ambiente
 const _env = envSchema.safeParse(process.env);
 
 if (_env.success === false) {
