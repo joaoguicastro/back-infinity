@@ -1,3 +1,4 @@
+import 'dotenv/config'; // Primeira linha do arquivo
 import Fastify from 'fastify'; // Importando o Fastify
 import { cursoRoutes } from './routes/cursoRoutes';
 import { alunoRoutes } from './routes/alunoRoutes';
@@ -5,8 +6,7 @@ import { authRoutes } from './routes/authRoutes';
 import { financeiroRoutes } from './routes/financeiroRoutes';
 import { usuarioRoutes } from './routes/usuarioRoutes';
 import { env } from './env';
-import 'dotenv/config'; 
-import { z } from 'zod'; 
+
 
 const server = Fastify(); 
 
