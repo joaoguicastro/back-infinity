@@ -1,13 +1,16 @@
 import { FastifyInstance } from 'fastify';
-import { verificarToken, verificarPermissao } from '../middleware/auth'; // Certifique-se de que verificarPermissao está implementado
+import { verificarToken, verificarPermissao } from '../middleware/auth'; 
 import { createCourse } from '../use-case/createCourse';
 import { getCourseReport } from '../use-case/getCourseReport';
 import { prisma } from '../lib/prisma';
 
+// Adicione os novos campos na interface
 interface CreateCourseInput {
   nome: string;
   disciplinas: string[];
   cargaHoraria: number;
+  diasDaSemana: string[]; // Novo campo
+  horasPorDia: number; // Novo campo
 }
 
 export async function cursoRoutes(server: FastifyInstance) {
@@ -16,7 +19,17 @@ export async function cursoRoutes(server: FastifyInstance) {
     preHandler: [verificarToken, verificarPermissao(['master', 'admin'])] 
   }, async (request, reply) => {
     try {
-      const novoCurso = await createCourse(request.body);
+      const { nome, disciplinas, cargaHoraria, diasDaSemana, horasPorDia } = request.body;
+      
+      // Chama o use case de criação de curso com os novos campos
+      const novoCurso = await createCourse({
+        nome,
+        disciplinas,
+        cargaHoraria,
+        diasDaSemana, // Incluindo o novo campo
+        horasPorDia, // Incluindo o novo campo
+      });
+      
       reply.status(201).send(novoCurso);
     } catch (error) {
       reply.status(400).send({ error: (error as Error).message });

@@ -19,6 +19,7 @@ model Aluno {
   cursoMatriculado   Curso?       @relation(fields: [cursoMatriculadoId], references: [id])
   cursoMatriculadoId Int?
   financeiro         Financeiro[]
+  Presenca           Presenca[]
 }
 
 model Curso {
@@ -28,6 +29,9 @@ model Curso {
   cargaHoraria Int
   alunos       Aluno[]
   financeiro   Financeiro[]
+  diasDaSemana String[] // Novos campos
+  horasPorDia  Int? // Novos campos
+  Presenca     Presenca[]
 }
 
 model Financeiro {
@@ -50,4 +54,15 @@ model Usuario {
   senha    String
   cargo    String
   criadoEm DateTime @default(now())
+}
+
+model Presenca {
+  id         Int      @id @default(autoincrement())
+  aluno      Aluno    @relation(fields: [alunoId], references: [id])
+  alunoId    Int
+  curso      Curso    @relation(fields: [cursoId], references: [id])
+  cursoId    Int
+  data       DateTime @default(now())
+  presente   Boolean  @default(false) // Indica se o aluno estava presente
+  observacao String? // Campo opcional para observações
 }

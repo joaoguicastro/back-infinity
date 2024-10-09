@@ -1,13 +1,15 @@
 import { prisma } from '../lib/prisma';
 
 export class CursoRepository {
-  // Criar um novo curso com disciplinas
-  async create(data: { nome: string; disciplinas: string[]; cargaHoraria: number }) {
+  // Criar um novo curso com disciplinas, dias da semana e horas por dia
+  async create(data: { nome: string; disciplinas: string[]; cargaHoraria: number; diasDaSemana: string[]; horasPorDia: number }) {
     return prisma.curso.create({
       data: {
         nome: data.nome,
         cargaHoraria: data.cargaHoraria,
-        disciplinas: data.disciplinas, // Aqui disciplinas continua sendo um array de strings
+        disciplinas: data.disciplinas, // Array de strings
+        diasDaSemana: data.diasDaSemana, // Novo campo
+        horasPorDia: data.horasPorDia,   // Novo campo
       },
     });
   }
@@ -34,7 +36,7 @@ export class CursoRepository {
   }
 
   // Atualizar um curso
-  async update(cursoId: number, data: { nome?: string; disciplinas?: string[]; cargaHoraria?: number }) {
+  async update(cursoId: number, data: { nome?: string; disciplinas?: string[]; cargaHoraria?: number; diasDaSemana?: string[]; horasPorDia?: number }) {
     return prisma.curso.update({
       where: { id: cursoId },
       data,

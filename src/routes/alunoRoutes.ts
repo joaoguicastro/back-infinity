@@ -81,4 +81,18 @@ export async function alunoRoutes(server: FastifyInstance) {
       reply.status(400).send({ error: (error as Error).message });
     }
   });
+  server.put<{ Params: { alunoId: string; cursoId: string } }>('/alunos/vincular/:alunoId/:cursoId', { preHandler: [verificarToken] }, async (request, reply) => {
+    const { alunoId, cursoId } = request.params as { alunoId: string; cursoId: string };
+
+    try {
+      const alunoAtualizado = await prisma.aluno.update({
+        where: { id: Number(alunoId) },
+        data: { cursoMatriculadoId: Number(cursoId) }, // Vincula o aluno ao curso
+      });
+
+      reply.status(200).send(alunoAtualizado); // Retorna os dados do aluno atualizado
+    } catch (error) {
+      reply.status(400).send({ error: (error as Error).message }); // Retorna erro em caso de falha
+    }
+  });
 }

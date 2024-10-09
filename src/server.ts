@@ -7,6 +7,7 @@ import { financeiroRoutes } from './routes/financeiroRoutes';
 import { usuarioRoutes } from './routes/usuarioRoutes';
 import { env } from './env';
 import cors from '@fastify/cors'; 
+import { presencaRoutes } from './routes/presencaRoutes';
 
 const server = Fastify();
 
@@ -15,6 +16,7 @@ server.register(alunoRoutes);
 server.register(authRoutes);
 server.register(financeiroRoutes);
 server.register(usuarioRoutes);
+server.register(presencaRoutes);
 
 server.listen({ port: env.PORT, host: '0.0.0.0' }, (err, address) => {
   if (err) {
