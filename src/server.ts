@@ -32,5 +32,3 @@ server.register(cors, {
   origin: '*', // Aqui você pode restringir as origens conforme necessário
 });
 
-// Seu código restante...
-

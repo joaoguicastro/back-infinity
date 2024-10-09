@@ -9,16 +9,25 @@ interface RegisterAlunoInput {
   dataNascimento: string;
   endereco: string;
   telefone: string;
+  cursoId: number;
 }
 
 export async function alunoRoutes(server: FastifyInstance) {
   // Rota para registrar um novo aluno (somente para master)
-  server.post<{ Body: RegisterAlunoInput }>('/alunos', { 
-    preHandler: [verificarToken, verificarPermissao(['master'])] 
-  }, async (request, reply) => {
+  server.post<{ Body: RegisterAlunoInput }>('/alunos', { preHandler: [verificarToken, verificarPermissao(['master'])] }, async (request, reply) => {
     try {
+      const { nome, cpf, nomeResponsavel, dataNascimento, endereco, telefone, cursoId } = request.body;
+  
       const novoAluno = await prisma.aluno.create({
-        data: request.body,
+        data: {
+          nome,
+          cpf,
+          nomeResponsavel,
+          dataNascimento: new Date(dataNascimento), // Conversão de string para Date
+          endereco,
+          telefone,
+          cursoMatriculadoId: cursoId, // Certifique-se de que o campo esteja correto
+        },
       });
       reply.status(201).send(novoAluno);
     } catch (error) {
@@ -81,6 +90,7 @@ export async function alunoRoutes(server: FastifyInstance) {
       reply.status(400).send({ error: (error as Error).message });
     }
   });
+
   server.put<{ Params: { alunoId: string; cursoId: string } }>('/alunos/vincular/:alunoId/:cursoId', { preHandler: [verificarToken] }, async (request, reply) => {
     const { alunoId, cursoId } = request.params as { alunoId: string; cursoId: string };
 

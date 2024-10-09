@@ -3,6 +3,7 @@ import { verificarToken, verificarPermissao } from '../middleware/auth';
 import { createFinanceiro } from '../use-case/createFinanceiro';
 import { getDebtorsReport } from '../use-case/getDebtorsReport';
 import { darBaixaNoPagamento, estornarPagamento } from '../use-case/baixaEestornoPagamento';
+import { prisma } from '../lib/prisma';
 
 interface CreateFinanceiroInput {
   alunoId: number;
@@ -72,6 +73,28 @@ export async function financeiroRoutes(server: FastifyInstance) {
       reply.status(200).send(result);
     } catch (error) {
       reply.status(400).send({ error: (error as Error).message });
+    }
+  });
+  server.get('/relatorios/recebimentos-mensais', { preHandler: [verificarToken] }, async (request, reply) => {
+    const dataInicioMes = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+    const dataFimMes = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0);
+
+    try {
+      const recebimentos = await prisma.financeiro.findMany({
+        where: {
+          status: 'pago',  // Considerando que 'pago' seja o status para indicar que foi quitado
+          dataPagamento: {
+            gte: dataInicioMes,
+            lte: dataFimMes
+          }
+        }
+      });
+
+      const totalRecebido = recebimentos.reduce((total, financeiro) => total + financeiro.valor, 0);
+
+      reply.status(200).send({ totalRecebido });
+    } catch (error) {
+      reply.status(500).send({ error: (error as Error).message });
     }
   });
 }
