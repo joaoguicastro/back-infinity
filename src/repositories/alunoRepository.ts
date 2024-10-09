@@ -2,7 +2,7 @@ import { prisma } from '../lib/prisma';
 
 export class AlunoRepository {
   // Criar um novo aluno
-  async create(data: { nome: string; cpf: string; nomeResponsavel: string; dataNascimento: Date; endereco: string }) {
+  async create(data: { nome: string; cpf: string; nomeResponsavel: string; dataNascimento: Date; endereco: string; telefone: string }) {
     return prisma.aluno.create({
       data: {
         nome: data.nome,
@@ -10,6 +10,7 @@ export class AlunoRepository {
         nomeResponsavel: data.nomeResponsavel,
         dataNascimento: data.dataNascimento, // Certifique-se de que isso seja um objeto `Date`
         endereco: data.endereco,
+        telefone: data.telefone, // Novo campo telefone
       },
     });
   }
@@ -34,7 +35,7 @@ export class AlunoRepository {
   }
 
   // Atualizar um aluno
-  async update(alunoId: number, data: { nome?: string; cpf?: string; nomeResponsavel?: string; dataNascimento?: Date; endereco?: string }) {
+  async update(alunoId: number, data: { nome?: string; cpf?: string; nomeResponsavel?: string; dataNascimento?: Date; endereco?: string; telefone?: string }) {
     return prisma.aluno.update({
       where: { id: alunoId },
       data,

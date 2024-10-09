@@ -1,30 +1,38 @@
 import { FastifyReply, FastifyRequest } from 'fastify';
 import jwt from 'jsonwebtoken';
-import { env } from '../env'; // Importando variáveis de ambiente corretamente
+import { env } from '../env';
 
+// Middleware para verificar token
 export async function verificarToken(request: FastifyRequest, reply: FastifyReply) {
   try {
-    const authHeader = request.headers.authorization;
-
-    if (!authHeader) {
-      reply.status(401).send({ error: 'Token não fornecido' });
-      return;
-    }
-
-    // Extrai o token do header 'Authorization' (esperado no formato: 'Bearer TOKEN')
-    const token = authHeader.split(' ')[1];
+    const token = request.headers.authorization?.split(' ')[1];
     if (!token) {
-      reply.status(401).send({ error: 'Token inválido' });
-      return;
+      return reply.status(401).send({ error: 'Token não fornecido' });
     }
 
-    // Verifica o token usando a chave secreta armazenada em JWT_SECRET
-    const payload = jwt.verify(token, env.JWT_SECRET) as { userId: number; cargo: string };
+    const decoded = jwt.verify(token, env.JWT_SECRET as string) as { userId: number, cargo: string };
+    
+    // Salvando o userId e o cargo no request para verificar permissões posteriormente
+    request.user = { userId: decoded.userId, cargo: decoded.cargo };
 
-    // Armazena o payload do token no request, para ser usado nas rotas seguintes
-    request.user = payload;
-  } catch (err) {
-    console.error(err);
-    reply.status(401).send({ error: 'Token inválido' });
+  } catch (error) {
+    return reply.status(401).send({ error: 'Token inválido' });
   }
+}
+
+// Função para verificar permissões
+export function verificarPermissao(permissoesPermitidas: string[]) {
+  return async (request: FastifyRequest, reply: FastifyReply) => {
+    // Verificar se o usuário está autenticado e se possui cargo
+    if (!request.user || !request.user.cargo) {
+      return reply.status(403).send({ error: 'Acesso negado: cargo não encontrado' });
+    }
+
+    const { cargo } = request.user;
+
+    // Verificar se o cargo do usuário está nas permissões permitidas
+    if (!permissoesPermitidas.includes(cargo)) {
+      return reply.status(403).send({ error: 'Acesso negado: você não tem permissão para acessar essa rota' });
+    }
+  };
 }

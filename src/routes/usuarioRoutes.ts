@@ -1,5 +1,5 @@
 import { FastifyInstance } from 'fastify';
-import { verificarToken } from '../middleware/auth';
+import { verificarToken, verificarPermissao } from '../middleware/auth';
 import { createUser } from '../use-case/createUser';
 
 interface CreateUserInput {
@@ -10,7 +10,10 @@ interface CreateUserInput {
 }
 
 export async function usuarioRoutes(server: FastifyInstance) {
-  server.post<{ Body: CreateUserInput }>('/usuarios', { preHandler: [verificarToken] }, async (request, reply) => {
+  // Apenas o "master" pode criar novos usuários
+  server.post<{ Body: CreateUserInput }>('/usuarios', { 
+    preHandler: [verificarToken, verificarPermissao(['master'])] 
+  }, async (request, reply) => {
     try {
       const novoUsuario = await createUser(request.body);
       reply.status(201).send(novoUsuario);
