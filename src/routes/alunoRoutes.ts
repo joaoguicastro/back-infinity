@@ -55,6 +55,10 @@ export async function alunoRoutes(server: FastifyInstance) {
     try {
       const aluno = await prisma.aluno.findUnique({
         where: { id: Number(id) },
+        include: {
+          cursoMatriculado: true, // Inclui as informações do curso matriculado
+          financeiro: true, // Inclui as informações financeiras relacionadas ao aluno
+        },
       });
       if (!aluno) {
         return reply.status(404).send({ error: 'Aluno não encontrado' });
@@ -64,6 +68,8 @@ export async function alunoRoutes(server: FastifyInstance) {
       reply.status(400).send({ error: (error as Error).message });
     }
   });
+  
+  
 
   // Rota para atualizar um aluno por ID (permitido para master e admin)
   server.put<{ Body: RegisterAlunoInput; Params: { id: string } }>('/alunos/:id', { 

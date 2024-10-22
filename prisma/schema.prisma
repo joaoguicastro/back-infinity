@@ -40,10 +40,13 @@ model Financeiro {
   alunoId            Int
   curso              Curso?    @relation(fields: [cursoId], references: [id])
   cursoId            Int?
-  valor              Float // Valor total
+  valor              Float // Valor total da parcela
+  valorOriginal      Float? // Valor original da parcela (novo campo)
+  valorPago          Float? // Valor efetivamente pago
+  desconto           Float? // Desconto aplicado
   quantidadeParcelas Int? // Quantidade de parcelas
-  status             String
-  dataPagamento      DateTime?
+  status             String // Status da parcela (pendente, pago, etc.)
+  dataPagamento      DateTime? // Data de pagamento
   dataVencimento     DateTime? // Data de vencimento de cada parcela
 }
 

@@ -4,7 +4,6 @@ const financeiroRepository = new FinanceiroRepository();
 
 export async function createFinanceiro(data: { alunoId: number; cursoId: number; valor: number; quantidadeParcelas: number; status: string; dataPagamento?: Date }) {
   const valorParcela = data.valor / data.quantidadeParcelas;
-
   const hoje = new Date();
 
   // Criar um registro financeiro para cada parcela
@@ -16,11 +15,11 @@ export async function createFinanceiro(data: { alunoId: number; cursoId: number;
     await financeiroRepository.create({
       alunoId: data.alunoId,
       cursoId: data.cursoId,
-      valor: valorParcela,
+      valor: valorParcela,  // Valor da parcela
       quantidadeParcelas: data.quantidadeParcelas,
       status: data.status,
-      dataPagamento: undefined,
-      dataVencimento, // Definindo a data de vencimento de cada parcela
+      dataPagamento: undefined, // Nenhuma data de pagamento ainda
+      dataVencimento, // Define a data de vencimento
     });
   }
 

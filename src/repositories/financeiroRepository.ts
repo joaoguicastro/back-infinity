@@ -7,7 +7,8 @@ export class FinanceiroRepository {
       data: {
         alunoId: data.alunoId,
         cursoId: data.cursoId,
-        valor: data.valor,
+        valor: data.valor,                // Valor atualizado após pagamento/desconto
+        valorOriginal: data.valor,        // Armazenar o valor original da parcela
         quantidadeParcelas: data.quantidadeParcelas, // Incluindo o número de parcelas
         status: data.status,
         dataPagamento: data.dataPagamento,
@@ -16,24 +17,56 @@ export class FinanceiroRepository {
     });
   }
 
-  // Dar baixa no pagamento de uma parcela específica
-  async darBaixaPagamento(financeiroId: number) {
+  // Dar baixa no pagamento de uma parcela específica, agora considerando valorPago e desconto
+  async darBaixaPagamento(financeiroId: number, valorPago: number, desconto: number) {
+    // Buscar o registro financeiro atual
+    const financeiro = await prisma.financeiro.findUnique({
+      where: { id: financeiroId },
+    });
+
+    if (!financeiro) {
+      throw new Error('Registro financeiro não encontrado.');
+    }
+
+    // Calcular o valor final da parcela após desconto
+    const valorComDesconto = financeiro.valor - desconto;
+    const valorRestante = valorComDesconto - valorPago;
+
+    // Verificar se o valor pago quita a parcela ou se ainda resta saldo
+    const status = valorRestante <= 0 ? 'pago' : 'pendente';
+
     return prisma.financeiro.update({
       where: { id: financeiroId },
       data: {
-        status: 'pago', // Atualiza o status para 'pago'
-        dataPagamento: new Date(), // Define a data de pagamento como a data atual
+        valorPago: valorPago,          // Atualiza o valor pago
+        desconto: desconto,            // Atualiza o desconto
+        valor: valorRestante > 0 ? valorRestante : 0, // Atualiza o valor restante (se houver)
+        status: status,                // Atualiza o status
+        dataPagamento: new Date(),     // Define a data de pagamento como a data atual
       },
     });
   }
 
   // Estornar o pagamento de uma parcela
   async estornarPagamento(financeiroId: number) {
+    // Buscar o registro financeiro atual
+    const financeiro = await prisma.financeiro.findUnique({
+      where: { id: financeiroId },
+    });
+
+    if (!financeiro) {
+      throw new Error('Registro financeiro não encontrado.');
+    }
+
+    // Restaurar o valor da parcela ao valor original
     return prisma.financeiro.update({
       where: { id: financeiroId },
       data: {
-        status: 'pendente', // Atualiza o status de volta para 'pendente'
-        dataPagamento: null, // Remove a data de pagamento
+        valor: financeiro.valorOriginal || 0,  // Restaurar o valor original da parcela
+        valorPago: 0,                     // Zera o valor pago
+        desconto: 0,                      // Remove o desconto
+        status: 'pendente',               // Volta para o status pendente
+        dataPagamento: null,              // Remove a data de pagamento
       },
     });
   }
