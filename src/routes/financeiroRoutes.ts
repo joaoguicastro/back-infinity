@@ -12,18 +12,16 @@ interface CreateFinanceiroInput {
   quantidadeParcelas: number;
   status: string;
   dataPagamento?: Date;
-  dataVencimento?: Date; // Campo opcional para data de vencimento
+  dataVencimento?: Date; 
 }
 
 export async function financeiroRoutes(server: FastifyInstance) {
-  // Rota para criar um novo registro financeiro - Apenas "master" e "admin" têm acesso
   server.post<{ Body: CreateFinanceiroInput }>('/financeiro', { 
     preHandler: [verificarToken, verificarPermissao(['master', 'admin'])] 
   }, async (request, reply) => {
     try {
       const { alunoId, cursoId, valor, quantidadeParcelas, status, dataPagamento } = request.body;
 
-      // Cria os registros financeiros para o aluno e curso
       const novoFinanceiro = await createFinanceiro({
         alunoId,
         cursoId,
@@ -39,7 +37,6 @@ export async function financeiroRoutes(server: FastifyInstance) {
     }
   });
 
-  // Rota para obter o relatório de devedores - Apenas "master" tem acesso
   server.get('/relatorios/devedores', { 
     preHandler: [verificarToken, verificarPermissao(['master'])] 
   }, async (request, reply) => {
@@ -51,7 +48,6 @@ export async function financeiroRoutes(server: FastifyInstance) {
     }
   });
 
-  // Rota para dar baixa no pagamento de uma parcela específica - Apenas "master" e "admin" têm acesso
   server.put<{ Params: { id: string }, Body: { desconto: number, valorPago: number } }>('/financeiro/baixa/:id', { 
     preHandler: [verificarToken, verificarPermissao(['master', 'admin'])] 
   }, async (request, reply) => {
@@ -59,16 +55,14 @@ export async function financeiroRoutes(server: FastifyInstance) {
     const { desconto, valorPago } = request.body;
     
     try {
-      // Chama a função de dar baixa no pagamento passando os valores necessários
       const result = await darBaixaNoPagamento(Number(id), desconto, valorPago);
-      reply.status(200).send(result); // Envia o resultado de sucesso
+      reply.status(200).send(result); 
     } catch (error) {
-      console.error('Erro ao dar baixa no pagamento:', error); // Log do erro para o servidor
-      reply.status(400).send({ error: (error as Error).message }); // Resposta de erro
+      console.error('Erro ao dar baixa no pagamento:', error); 
+      reply.status(400).send({ error: (error as Error).message });
     }
   });
 
-  // Rota para estornar o pagamento de uma parcela específica - Apenas "master" e "admin" têm acesso
   server.put<{ Params: { id: string } }>('/financeiro/estorno/:id', { 
     preHandler: [verificarToken, verificarPermissao(['master', 'admin'])] 
   }, async (request, reply) => {
@@ -81,7 +75,6 @@ export async function financeiroRoutes(server: FastifyInstance) {
     }
   });
 
-  // Rota para obter os recebimentos mensais - Apenas "master" tem acesso
   server.get('/relatorios/recebimentos-mensais', { preHandler: [verificarToken] }, async (request, reply) => {
     const dataInicioMes = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
     const dataFimMes = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0);
@@ -89,7 +82,7 @@ export async function financeiroRoutes(server: FastifyInstance) {
     try {
       const recebimentos = await prisma.financeiro.findMany({
         where: {
-          status: 'pago',  // Considerando que 'pago' seja o status para indicar que foi quitado
+          status: 'pago', 
           dataPagamento: {
             gte: dataInicioMes,
             lte: dataFimMes
@@ -97,7 +90,6 @@ export async function financeiroRoutes(server: FastifyInstance) {
         }
       });
 
-      // Corrigir para somar o valorPago corretamente
       const totalRecebido = recebimentos.reduce((total, financeiro) => total + (financeiro.valorPago || 0), 0);
 
       reply.status(200).send({ totalRecebido });

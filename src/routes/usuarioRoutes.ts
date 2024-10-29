@@ -10,7 +10,6 @@ interface CreateUserInput {
 }
 
 export async function usuarioRoutes(server: FastifyInstance) {
-  // Apenas o "master" pode criar novos usuários
   server.post<{ Body: CreateUserInput }>('/usuarios', { 
     preHandler: [verificarToken, verificarPermissao(['master'])] 
   }, async (request, reply) => {

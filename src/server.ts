@@ -25,10 +25,8 @@ server.listen({ port: env.PORT, host: '0.0.0.0' }, (err, address) => {
   }
   console.log(`Servidor rodando em: ${address}`);
 });
-// Adicione essa linh
 
-// Habilitar CORS
 server.register(cors, {
-  origin: '*', // Aqui você pode restringir as origens conforme necessário
+  origin: '*',
 });
 

@@ -13,7 +13,6 @@ interface RegisterAlunoInput {
 }
 
 export async function alunoRoutes(server: FastifyInstance) {
-  // Rota para registrar um novo aluno (somente para master)
   server.post<{ Body: RegisterAlunoInput }>('/alunos', { preHandler: [verificarToken, verificarPermissao(['master'])] }, async (request, reply) => {
     try {
       const { nome, cpf, nomeResponsavel, dataNascimento, endereco, telefone, cursoId } = request.body;
@@ -23,10 +22,10 @@ export async function alunoRoutes(server: FastifyInstance) {
           nome,
           cpf,
           nomeResponsavel,
-          dataNascimento: new Date(dataNascimento), // Conversão de string para Date
+          dataNascimento: new Date(dataNascimento),
           endereco,
           telefone,
-          cursoMatriculadoId: cursoId, // Certifique-se de que o campo esteja correto
+          cursoMatriculadoId: cursoId,
         },
       });
       reply.status(201).send(novoAluno);
@@ -35,7 +34,6 @@ export async function alunoRoutes(server: FastifyInstance) {
     }
   });
 
-  // Rota para buscar todos os alunos (permitido para master, admin e operador)
   server.get('/relatorios/alunos', { 
     preHandler: [verificarToken, verificarPermissao(['master', 'admin', 'operador'])] 
   }, async (request, reply) => {
@@ -47,7 +45,6 @@ export async function alunoRoutes(server: FastifyInstance) {
     }
   });
 
-  // Rota para buscar um aluno por ID (permitido para master, admin e operador)
   server.get('/alunos/:id', { 
     preHandler: [verificarToken, verificarPermissao(['master', 'admin', 'operador'])] 
   }, async (request, reply) => {
@@ -56,8 +53,8 @@ export async function alunoRoutes(server: FastifyInstance) {
       const aluno = await prisma.aluno.findUnique({
         where: { id: Number(id) },
         include: {
-          cursoMatriculado: true, // Inclui as informações do curso matriculado
-          financeiro: true, // Inclui as informações financeiras relacionadas ao aluno
+          cursoMatriculado: true, 
+          financeiro: true, 
         },
       });
       if (!aluno) {
@@ -70,8 +67,6 @@ export async function alunoRoutes(server: FastifyInstance) {
   });
   
   
-
-  // Rota para atualizar um aluno por ID (permitido para master e admin)
   server.put<{ Body: RegisterAlunoInput; Params: { id: string } }>('/alunos/:id', { 
     preHandler: [verificarToken, verificarPermissao(['master', 'admin'])] 
   }, async (request, reply) => {
@@ -85,7 +80,7 @@ export async function alunoRoutes(server: FastifyInstance) {
           nome,
           cpf,
           nomeResponsavel,
-          dataNascimento: new Date(dataNascimento), // Convertendo string para Date
+          dataNascimento: new Date(dataNascimento), 
           endereco,
           telefone,
         },
@@ -103,12 +98,12 @@ export async function alunoRoutes(server: FastifyInstance) {
     try {
       const alunoAtualizado = await prisma.aluno.update({
         where: { id: Number(alunoId) },
-        data: { cursoMatriculadoId: Number(cursoId) }, // Vincula o aluno ao curso
+        data: { cursoMatriculadoId: Number(cursoId) },
       });
 
-      reply.status(200).send(alunoAtualizado); // Retorna os dados do aluno atualizado
+      reply.status(200).send(alunoAtualizado); 
     } catch (error) {
-      reply.status(400).send({ error: (error as Error).message }); // Retorna erro em caso de falha
+      reply.status(400).send({ error: (error as Error).message });
     }
   });
 }

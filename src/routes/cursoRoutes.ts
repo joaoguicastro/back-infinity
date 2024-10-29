@@ -9,25 +9,23 @@ interface CreateCourseInput {
   nome: string;
   disciplinas: string[];
   cargaHoraria: number;
-  diasDaSemana: string[]; // Novo campo
-  horasPorDia: number; // Novo campo
+  diasDaSemana: string[]; 
+  horasPorDia: number;
 }
 
 export async function cursoRoutes(server: FastifyInstance) {
-  // Rota para criar um curso - Apenas "master" ou "admin" têm acesso
   server.post<{ Body: CreateCourseInput }>('/cursos', { 
     preHandler: [verificarToken, verificarPermissao(['master', 'admin'])] 
   }, async (request, reply) => {
     try {
       const { nome, disciplinas, cargaHoraria, diasDaSemana, horasPorDia } = request.body;
       
-      // Chama o use case de criação de curso com os novos campos
       const novoCurso = await createCourse({
         nome,
         disciplinas,
         cargaHoraria,
-        diasDaSemana, // Incluindo o novo campo
-        horasPorDia, // Incluindo o novo campo
+        diasDaSemana, 
+        horasPorDia,
       });
       
       reply.status(201).send(novoCurso);
@@ -36,7 +34,6 @@ export async function cursoRoutes(server: FastifyInstance) {
     }
   });
 
-  // Rota para listar relatórios de cursos - Todos os cargos podem acessar
   server.get('/relatorios/cursos', { 
     preHandler: [verificarToken] 
   }, async (request, reply) => {
@@ -48,7 +45,6 @@ export async function cursoRoutes(server: FastifyInstance) {
     }
   });
 
-  // Rota para buscar curso por ID - Todos os cargos podem acessar
   server.get('/cursos/:id', { 
     preHandler: [verificarToken] 
   }, async (request, reply) => {

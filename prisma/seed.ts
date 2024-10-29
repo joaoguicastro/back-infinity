@@ -1,14 +1,12 @@
-import { prisma } from '../src/lib/prisma'; // Corrija o caminho se necessário
+import { prisma } from '../src/lib/prisma';
 import bcrypt from 'bcryptjs';
 
 async function main() {
-  // Verificar se o usuário mestre já existe
   const existingUser = await prisma.usuario.findUnique({
     where: { email: 'joaoguicastro100@gmail.com' },
   });
 
   if (!existingUser) {
-    // Criar o usuário mestre com uma senha hash
     const hashedPassword = await bcrypt.hash('081104', 10);
 
     await prisma.usuario.create({
