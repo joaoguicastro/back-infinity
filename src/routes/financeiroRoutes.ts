@@ -6,7 +6,6 @@ import { darBaixaNoPagamento, estornarPagamento } from '../use-case/baixaEestorn
 import { prisma } from '../lib/prisma';
 
 interface CreateFinanceiroInput {
-  alunoId: number;
   cursoId: number;
   valor: number;
   quantidadeParcelas: number;
@@ -20,10 +19,9 @@ export async function financeiroRoutes(server: FastifyInstance) {
     preHandler: [verificarToken, verificarPermissao(['master', 'admin'])] 
   }, async (request, reply) => {
     try {
-      const { alunoId, cursoId, valor, quantidadeParcelas, status, dataPagamento } = request.body;
+      const { cursoId, valor, quantidadeParcelas, status, dataPagamento } = request.body;
 
       const novoFinanceiro = await createFinanceiro({
-        alunoId,
         cursoId,
         valor,
         quantidadeParcelas,

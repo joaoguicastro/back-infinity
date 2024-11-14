@@ -2,7 +2,7 @@ import { FinanceiroRepository } from '../repositories/financeiroRepository';
 
 const financeiroRepository = new FinanceiroRepository();
 
-export async function createFinanceiro(data: { alunoId: number; cursoId: number; valor: number; quantidadeParcelas: number; status: string; dataPagamento?: Date }) {
+export async function createFinanceiro(data: { cursoId: number; valor: number; quantidadeParcelas: number; status: string; dataPagamento?: Date }) {
   const valorParcela = data.valor / data.quantidadeParcelas;
   const hoje = new Date();
 
@@ -11,7 +11,6 @@ export async function createFinanceiro(data: { alunoId: number; cursoId: number;
     dataVencimento.setMonth(hoje.getMonth() + i);
 
     await financeiroRepository.create({
-      alunoId: data.alunoId,
       cursoId: data.cursoId,
       valor: valorParcela, 
       quantidadeParcelas: data.quantidadeParcelas,

@@ -1,4 +1,4 @@
-import { FastifyInstance } from 'fastify';
+import { FastifyInstance, FastifyRequest } from 'fastify';
 import { verificarToken, verificarPermissao } from '../middleware/auth';
 import { prisma } from '../lib/prisma';
 
@@ -10,6 +10,9 @@ interface RegisterAlunoInput {
   endereco: string;
   telefone: string;
   cursoId: number;
+}
+interface Params {
+  id: string;
 }
 
 export async function alunoRoutes(server: FastifyInstance) {
@@ -45,24 +48,30 @@ export async function alunoRoutes(server: FastifyInstance) {
     }
   });
 
-  server.get('/alunos/:id', { 
+  server.get<{ Params: Params }>('/alunos/:id', { 
     preHandler: [verificarToken, verificarPermissao(['master', 'admin', 'operador'])] 
-  }, async (request, reply) => {
-    const { id } = request.params as { id: string };
+  }, async (request: FastifyRequest<{ Params: Params }>, reply) => {
     try {
       const aluno = await prisma.aluno.findUnique({
-        where: { id: Number(id) },
+        where: { id: Number(request.params.id) },
         include: {
-          cursoMatriculado: true, 
-          financeiro: true, 
+          cursoMatriculado: {
+            include: {
+              financeiro: true, // Inclui o financeiro vinculado ao curso
+            },
+          },
         },
       });
+
       if (!aluno) {
-        return reply.status(404).send({ error: 'Aluno não encontrado' });
+        reply.status(404).send({ error: 'Aluno não encontrado' });
+        return;
       }
+
       reply.status(200).send(aluno);
     } catch (error) {
-      reply.status(400).send({ error: (error as Error).message });
+      console.error('Erro ao buscar detalhes do aluno:', error);
+      reply.status(500).send({ error: 'Erro interno do servidor' });
     }
   });
   

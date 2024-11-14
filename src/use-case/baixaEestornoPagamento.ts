@@ -3,7 +3,7 @@ import { FinanceiroRepository } from '../repositories/financeiroRepository';
 
 const financeiroRepository = new FinanceiroRepository();
 
-export async function darBaixaNoPagamento(id: number, desconto: number, valorPago: number) {
+export async function darBaixaNoPagamento(id: number, desconto: number = 0, valorPago: number) {
   const financeiro = await prisma.financeiro.findUnique({
     where: { id },
   });
@@ -12,9 +12,10 @@ export async function darBaixaNoPagamento(id: number, desconto: number, valorPag
     throw new Error('Registro financeiro não encontrado.');
   }
 
-  const valorComDesconto = financeiro.valor - desconto;
-  const valorRestante = valorComDesconto - valorPago;
-
+  // Certifique-se de que o desconto não seja maior que o valor
+  const descontoAplicado = desconto || 0;
+  const valorComDesconto = Math.max(financeiro.valor - descontoAplicado, 0);
+  const valorRestante = Math.max(valorComDesconto - valorPago, 0);
 
   const status = valorRestante <= 0 ? 'pago' : 'pendente';
 
@@ -22,14 +23,21 @@ export async function darBaixaNoPagamento(id: number, desconto: number, valorPag
     where: { id },
     data: {
       valorPago: valorPago, 
-      desconto: desconto,  
+      desconto: descontoAplicado,  
       valor: valorRestante > 0 ? valorRestante : 0, 
       status: status,      
       dataPagamento: new Date(), 
     },
   });
 
-  return financeiroAtualizado;
+  return {
+    id: financeiroAtualizado.id,
+    status: financeiroAtualizado.status,
+    dataPagamento: financeiroAtualizado.dataPagamento,
+    valorPago: financeiroAtualizado.valorPago,
+    desconto: financeiroAtualizado.desconto,
+    valor: financeiroAtualizado.valor
+  };
 }
 
 export async function estornarPagamento(financeiroId: number) {
@@ -41,7 +49,7 @@ export async function estornarPagamento(financeiroId: number) {
     throw new Error('Registro financeiro não encontrado.');
   }
 
-  return prisma.financeiro.update({
+  const financeiroEstornado = await prisma.financeiro.update({
     where: { id: financeiroId },
     data: {
       valor: financeiro.valorOriginal ?? financeiro.valor, 
@@ -51,6 +59,13 @@ export async function estornarPagamento(financeiroId: number) {
       dataPagamento: null, 
     },
   });
+
+  return {
+    id: financeiroEstornado.id,
+    status: financeiroEstornado.status,
+    valorPago: financeiroEstornado.valorPago,
+    desconto: financeiroEstornado.desconto,
+    valor: financeiroEstornado.valor,
+    dataPagamento: financeiroEstornado.dataPagamento
+  };
 }
-
-

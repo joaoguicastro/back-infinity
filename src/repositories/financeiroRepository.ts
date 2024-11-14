@@ -1,10 +1,9 @@
 import { prisma } from '../lib/prisma';
 
 export class FinanceiroRepository {
-  async create(data: { alunoId: number; cursoId: number; valor: number; quantidadeParcelas: number; status: string; dataPagamento?: Date; dataVencimento: Date }) {
+  async create(data: {cursoId: number; valor: number; quantidadeParcelas: number; status: string; dataPagamento?: Date; dataVencimento: Date }) {
     return prisma.financeiro.create({
       data: {
-        alunoId: data.alunoId,
         cursoId: data.cursoId,
         valor: data.valor,
         valorOriginal: data.valor,
@@ -62,13 +61,7 @@ export class FinanceiroRepository {
       },
     });
   }
-
-  async findByAlunoId(alunoId: number) {
-    return prisma.financeiro.findMany({
-      where: { alunoId },
-    });
-  }
-
+  
   async findAll() {
     return prisma.financeiro.findMany();
   }

@@ -9,16 +9,15 @@ generator client {
 }
 
 model Aluno {
-  id                 Int          @id @default(autoincrement())
+  id                 Int        @id @default(autoincrement())
   nome               String
-  cpf                String       @unique
+  cpf                String     @unique
   nomeResponsavel    String
   dataNascimento     DateTime
   endereco           String
   telefone           String? // Permitir que seja opcional
-  cursoMatriculado   Curso?       @relation(fields: [cursoMatriculadoId], references: [id])
+  cursoMatriculado   Curso?     @relation(fields: [cursoMatriculadoId], references: [id])
   cursoMatriculadoId Int?
-  financeiro         Financeiro[]
   Presenca           Presenca[]
 }
 
@@ -36,8 +35,6 @@ model Curso {
 
 model Financeiro {
   id                 Int       @id @default(autoincrement())
-  aluno              Aluno     @relation(fields: [alunoId], references: [id])
-  alunoId            Int
   curso              Curso?    @relation(fields: [cursoId], references: [id])
   cursoId            Int?
   valor              Float // Valor total da parcela
