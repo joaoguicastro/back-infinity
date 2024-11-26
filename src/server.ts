@@ -6,27 +6,36 @@ import { authRoutes } from './routes/authRoutes';
 import { financeiroRoutes } from './routes/financeiroRoutes';
 import { usuarioRoutes } from './routes/usuarioRoutes';
 import { env } from './env';
-import cors from '@fastify/cors'; 
+import cors from '@fastify/cors';
 import { presencaRoutes } from './routes/presencaRoutes';
 
-const server = Fastify();
+export function buildServer() {
+  const server = Fastify();
 
-server.register(cursoRoutes);
-server.register(alunoRoutes);
-server.register(authRoutes);
-server.register(financeiroRoutes);
-server.register(usuarioRoutes);
-server.register(presencaRoutes);
+  // Registrar rotas
+  server.register(cursoRoutes);
+  server.register(alunoRoutes);
+  server.register(authRoutes);
+  server.register(financeiroRoutes);
+  server.register(usuarioRoutes);
+  server.register(presencaRoutes);
 
-server.listen({ port: env.PORT, host: '0.0.0.0' }, (err, address) => {
-  if (err) {
-    console.error(err);
-    process.exit(1);
-  }
-  console.log(`Servidor rodando em: ${address}`);
-});
+  // Configurar CORS
+  server.register(cors, {
+    origin: '*',
+  });
 
-server.register(cors, {
-  origin: '*',
-});
+  return server;
+}
 
+// Executar o servidor apenas quando o arquivo for rodado diretamente
+if (require.main === module) {
+  const server = buildServer();
+  server.listen({ port: env.PORT, host: '0.0.0.0' }, (err, address) => {
+    if (err) {
+      console.error(err);
+      process.exit(1);
+    }
+    console.log(`Servidor rodando em: ${address}`);
+  });
+}

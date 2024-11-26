@@ -7,10 +7,12 @@
     "esModuleInterop": true,          // Facilita a interoperabilidade entre módulos CommonJS e ES
     "forceConsistentCasingInFileNames": true,  // Garante consistência de letras maiúsculas e minúsculas nos imports
     "strict": true,                   // Ativa todas as verificações estritas do TypeScript
-    "skipLibCheck": true              // Ignora a verificação de declarações de bibliotecas para acelerar a compilação
+    "skipLibCheck": true,              // Ignora a verificação de declarações de bibliotecas para acelerar a compilação
+    "typeRoots": ["node_modules/@types", "src/types"]
   },
   "include": [
-    "src/**/*.ts"                     // Inclui todos os arquivos .ts dentro da pasta src
+    "src/**/*.ts",
+    "__tests__/**/*.ts"                     // Inclui todos os arquivos .ts dentro da pasta src
   ],
   "exclude": [
     "node_modules",                   // Exclui a pasta node_modules da compilação

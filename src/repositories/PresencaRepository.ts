@@ -19,6 +19,22 @@ export class PresencaRepository {
     });
   }
 
+  async findByDateRange(startDate: Date, endDate: Date) {
+    return prisma.presenca.findMany({
+      where: {
+        data: {
+          gte: startDate, // Recebe a data de início já validada
+          lte: endDate,   // Recebe a data de fim já validada
+        },
+      },
+      include: {
+        aluno: true, // Inclui informações do aluno
+        curso: true, // Inclui informações do curso
+      },
+    });
+  }
+  
+
   async findById(presencaId: number) {
     return prisma.presenca.findUnique({
       where: { id: presencaId },

@@ -52,13 +52,19 @@ export async function cursoRoutes(server: FastifyInstance) {
     try {
       const curso = await prisma.curso.findUnique({
         where: { id: Number(id) },
+        include: {
+          alunos: true, // Inclui os alunos associados ao curso
+        },
       });
+  
       if (!curso) {
         return reply.status(404).send({ error: 'Curso não encontrado' });
       }
+  
       reply.status(200).send(curso);
     } catch (error) {
       reply.status(400).send({ error: (error as Error).message });
     }
   });
+  
 }
